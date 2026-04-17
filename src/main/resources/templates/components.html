@@ -38,7 +38,8 @@
                 <a href="/dashboard" class="gradient-text nav-link nav-link-underline">DASHBOARD</a>
                 <a href="/computers" class="gradient-text nav-link nav-link-underline">COMPUTERS</a>
                 <a href="/components" class="gradient-text nav-link nav-link-underline">COMPONENTS</a>
-                <a href="/dashboard" class="nav-link nav-link-accent">USER 1</a>
+                <span class="nav-link nav-link-accent"
+                      th:text="${loggedInUserName != null ? loggedInUserName : 'GUEST'}">USER</span>
             </nav>
 
             <div class="menu-wrapper">
@@ -60,7 +61,9 @@
                 <a href="/search">SEARCH</a>
                 <a href="/operations/assign">ASSIGN COMPONENT</a>
                 <a href="/settings">SETTINGS</a>
-                <a href="/">LOG OUT</a>
+                <form th:action="@{/logout}" method="post" style="margin: 0;">
+                    <button type="submit" class="menu-logout-btn">LOG OUT</button>
+                </form>
             </nav>
         </div>
     </div>
@@ -157,8 +160,7 @@
                                 STATUS
                             </span>
                         </td>
-                        <td th:text="${component.computerInventoryNumber != null && !component.computerInventoryNumber.isEmpty() ? component.computerInventoryNumber : '-'}">-</td>
-                        <td>
+                        <td th:text="${component.computer != null ? component.computer.inventoryNumber : '-'}">-</td>                        <td>
                             <div class="action-buttons">
                                 <a th:href="@{'/components/edit/' + ${component.inventoryNumber}}" class="action-btn">EDIT</a>
                                 <a th:href="@{'/components/delete/' + ${component.inventoryNumber}}"
@@ -206,8 +208,8 @@
         }
 
         components.forEach((component, index) => {
-            const assignedTo = component.computerInventoryNumber && component.computerInventoryNumber.trim() !== ''
-                ? component.computerInventoryNumber
+            const assignedTo = component.computer && component.computer.inventoryNumber
+                ? component.computer.inventoryNumber
                 : '-';
 
             tableBody.innerHTML += `

@@ -1,8 +1,6 @@
 package com.example.computer_inventory_system.service;
 
-import com.example.computer_inventory_system.model.Component;
-import com.example.computer_inventory_system.model.ComponentStatus;
-import com.example.computer_inventory_system.model.ComponentType;
+import com.example.computer_inventory_system.model.*;
 import com.example.computer_inventory_system.repository.ComponentRepository;
 import org.springframework.stereotype.Service;
 
@@ -17,110 +15,93 @@ public class ComponentService {
         this.repository = repository;
     }
 
-    public List<Component> getAllComponents() {
-        return repository.findAll();
-    }
-
-    public List<Component> getFreeComponentsList() {
-        return repository.findByStatus(ComponentStatus.FREE);
+    public List<Component> getAllComponents(User owner) {
+        return repository.findByOwner(owner);
     }
 
     public void save(Component component) {
-        if (component.getComputerInventoryNumber() != null &&
-                !component.getComputerInventoryNumber().isBlank()) {
+        if (component.getComputer() != null) {
             component.setStatus(ComponentStatus.ASSIGNED);
-        } else {
+        } else if (component.getStatus() == null || component.getStatus() != ComponentStatus.IN_REPAIR) {
             component.setStatus(ComponentStatus.FREE);
         }
 
         repository.save(component);
     }
 
-    public Component getById(String id) {
-        return repository.findById(id).orElse(null);
+    public Component getById(String id, User owner) {
+        return repository.findByInventoryNumberAndOwner(id, owner).orElse(null);
     }
 
     public void update(Component component) {
-        if (component.getComputerInventoryNumber() != null &&
-                !component.getComputerInventoryNumber().isBlank()) {
+        if (component.getComputer() != null) {
             component.setStatus(ComponentStatus.ASSIGNED);
-        } else {
+        } else if (component.getStatus() == null || component.getStatus() != ComponentStatus.IN_REPAIR) {
             component.setStatus(ComponentStatus.FREE);
         }
+
         repository.save(component);
     }
 
-    public void deleteById(String id) {
-        repository.deleteById(id);
+    public void deleteById(String id, User owner) {
+        Component component = getById(id, owner);
+        if (component != null) {
+            repository.delete(component);
+        }
     }
 
-    public List<Component> filter(String query, String type, String status) {
-        boolean hasQuery = query != null && !query.isBlank();
-        boolean hasType = type != null && !type.isBlank();
-        boolean hasStatus = status != null && !status.isBlank();
+    public List<Component> filter(String query, String type, String status, User owner) {
+        List<Component> components;
 
-        if (!hasQuery && !hasType && !hasStatus) {
-            return repository.findAll();
-        }
-
-        if (hasType && hasStatus && hasQuery) {
-            return repository.findByTypeAndStatusAndModelContainingIgnoreCaseOrTypeAndStatusAndInventoryNumberContainingIgnoreCase(
-                    ComponentType.valueOf(type), ComponentStatus.valueOf(status), query,
-                    ComponentType.valueOf(type), ComponentStatus.valueOf(status), query
+        if (query == null || query.isBlank()) {
+            components = repository.findByOwner(owner);
+        } else {
+            components = repository.findByOwnerAndModelContainingIgnoreCaseOrOwnerAndInventoryNumberContainingIgnoreCase(
+                    owner, query,
+                    owner, query
             );
         }
 
-        if (hasType && hasQuery) {
-            return repository.findByTypeAndModelContainingIgnoreCaseOrTypeAndInventoryNumberContainingIgnoreCase(
-                    ComponentType.valueOf(type), query,
-                    ComponentType.valueOf(type), query
-            );
+        if (type != null && !type.isBlank()) {
+            ComponentType componentType = ComponentType.valueOf(type);
+            components = components.stream()
+                    .filter(component -> component.getType() == componentType)
+                    .toList();
         }
 
-        if (hasStatus && hasQuery) {
-            return repository.findByStatusAndModelContainingIgnoreCaseOrStatusAndInventoryNumberContainingIgnoreCase(
-                    ComponentStatus.valueOf(status), query,
-                    ComponentStatus.valueOf(status), query
-            );
+        if (status != null && !status.isBlank()) {
+            ComponentStatus componentStatus = ComponentStatus.valueOf(status);
+            components = components.stream()
+                    .filter(component -> component.getStatus() == componentStatus)
+                    .toList();
         }
 
-        if (hasType && hasStatus) {
-            return repository.findByTypeAndStatus(
-                    ComponentType.valueOf(type),
-                    ComponentStatus.valueOf(status)
-            );
-        }
-
-        if (hasType) {
-            return repository.findByType(ComponentType.valueOf(type));
-        }
-
-        if (hasStatus) {
-            return repository.findByStatus(ComponentStatus.valueOf(status));
-        }
-
-        return repository.findByModelContainingIgnoreCaseOrInventoryNumberContainingIgnoreCase(query, query);
+        return components;
     }
 
-    public long getTotalComponents() {
-        return repository.count();
+    public long getTotalComponents(User owner) {
+        return repository.findByOwner(owner).size();
     }
 
-    public long getFreeComponents() {
-        return repository.findAll().stream()
+    public long getFreeComponents(User owner) {
+        return repository.findByOwner(owner).stream()
                 .filter(component -> component.getStatus() == ComponentStatus.FREE)
                 .count();
     }
 
-    public long getAssignedComponents() {
-        return repository.findAll().stream()
+    public long getAssignedComponents(User owner) {
+        return repository.findByOwner(owner).stream()
                 .filter(component -> component.getStatus() == ComponentStatus.ASSIGNED)
                 .count();
     }
 
-    public long getRepairComponents() {
-        return repository.findAll().stream()
+    public long getRepairComponents(User owner) {
+        return repository.findByOwner(owner).stream()
                 .filter(component -> component.getStatus() == ComponentStatus.IN_REPAIR)
                 .count();
+    }
+
+    public List<Component> getByComputer(User owner, Computer computer) {
+        return repository.findByOwnerAndComputer(owner, computer);
     }
 }

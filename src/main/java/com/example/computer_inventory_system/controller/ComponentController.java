@@ -1,9 +1,13 @@
 package com.example.computer_inventory_system.controller;
 
 import com.example.computer_inventory_system.model.Component;
+import com.example.computer_inventory_system.model.Computer;
+import com.example.computer_inventory_system.model.User;
 import com.example.computer_inventory_system.service.ComponentService;
 import com.example.computer_inventory_system.service.ComputerService;
+import com.example.computer_inventory_system.service.UserService;
 import jakarta.validation.Valid;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -16,39 +20,67 @@ public class ComponentController {
 
     private final ComponentService componentService;
     private final ComputerService computerService;
+    private final UserService userService;
 
-    public ComponentController(ComponentService componentService, ComputerService computerService) {
+    public ComponentController(ComponentService componentService,
+                               ComputerService computerService,
+                               UserService userService) {
         this.componentService = componentService;
         this.computerService = computerService;
+        this.userService = userService;
+    }
+
+    private User getCurrentUser(Authentication authentication) {
+        return userService.findByEmail(authentication.getName());
     }
 
     @GetMapping("/components")
-    public String components(@RequestParam(required = false) String query, Model model) {
-        model.addAttribute("components", componentService.filter(query, null, null));
+    public String components(@RequestParam(required = false) String query,
+                             Model model,
+                             Authentication authentication) {
+        User currentUser = getCurrentUser(authentication);
+
+        model.addAttribute("components", componentService.filter(query, null, null, currentUser));
         model.addAttribute("query", query);
 
-        model.addAttribute("totalComponents", componentService.getTotalComponents());
-        model.addAttribute("freeComponents", componentService.getFreeComponents());
-        model.addAttribute("assignedComponents", componentService.getAssignedComponents());
-        model.addAttribute("repairComponents", componentService.getRepairComponents());
+        model.addAttribute("totalComponents", componentService.getTotalComponents(currentUser));
+        model.addAttribute("freeComponents", componentService.getFreeComponents(currentUser));
+        model.addAttribute("assignedComponents", componentService.getAssignedComponents(currentUser));
+        model.addAttribute("repairComponents", componentService.getRepairComponents(currentUser));
 
         return "components";
     }
 
     @GetMapping("/components/add")
-    public String addComponentPage(Model model) {
+    public String addComponentPage(Model model, Authentication authentication) {
+        User currentUser = getCurrentUser(authentication);
+
         model.addAttribute("component", new Component());
-        model.addAttribute("computers", computerService.getAllComputers());
+        model.addAttribute("computers", computerService.getAllComputers(currentUser));
+
         return "add-component";
     }
 
     @PostMapping("/components/add")
     public String addComponent(@Valid @ModelAttribute("component") Component component,
                                BindingResult bindingResult,
-                               Model model) {
+                               @RequestParam(required = false) String computerInventoryNumber,
+                               Model model,
+                               Authentication authentication) {
+        User currentUser = getCurrentUser(authentication);
+
         if (bindingResult.hasErrors()) {
-            model.addAttribute("computers", computerService.getAllComputers());
+            model.addAttribute("computers", computerService.getAllComputers(currentUser));
             return "add-component";
+        }
+
+        component.setOwner(currentUser);
+
+        if (computerInventoryNumber != null && !computerInventoryNumber.isBlank()) {
+            Computer computer = computerService.getById(computerInventoryNumber, currentUser);
+            component.setComputer(computer);
+        } else {
+            component.setComputer(null);
         }
 
         componentService.save(component);
@@ -56,20 +88,38 @@ public class ComponentController {
     }
 
     @GetMapping("/components/edit/{id}")
-    public String editComponentPage(@PathVariable String id, Model model) {
-        Component component = componentService.getById(id);
+    public String editComponentPage(@PathVariable String id,
+                                    Model model,
+                                    Authentication authentication) {
+        User currentUser = getCurrentUser(authentication);
+
+        Component component = componentService.getById(id, currentUser);
         model.addAttribute("component", component);
-        model.addAttribute("computers", computerService.getAllComputers());
+        model.addAttribute("computers", computerService.getAllComputers(currentUser));
+
         return "edit-component";
     }
 
     @PostMapping("/components/edit")
     public String updateComponent(@Valid @ModelAttribute("component") Component component,
                                   BindingResult bindingResult,
-                                  Model model) {
+                                  @RequestParam(required = false) String computerInventoryNumber,
+                                  Model model,
+                                  Authentication authentication) {
+        User currentUser = getCurrentUser(authentication);
+
         if (bindingResult.hasErrors()) {
-            model.addAttribute("computers", computerService.getAllComputers());
+            model.addAttribute("computers", computerService.getAllComputers(currentUser));
             return "edit-component";
+        }
+
+        component.setOwner(currentUser);
+
+        if (computerInventoryNumber != null && !computerInventoryNumber.isBlank()) {
+            Computer computer = computerService.getById(computerInventoryNumber, currentUser);
+            component.setComputer(computer);
+        } else {
+            component.setComputer(null);
         }
 
         componentService.update(component);
@@ -77,37 +127,45 @@ public class ComponentController {
     }
 
     @GetMapping("/components/delete/{id}")
-    public String deleteComponent(@PathVariable String id) {
-        componentService.deleteById(id);
+    public String deleteComponent(@PathVariable String id, Authentication authentication) {
+        User currentUser = getCurrentUser(authentication);
+        componentService.deleteById(id, currentUser);
         return "redirect:/components";
     }
 
     @GetMapping("/components/search")
     @ResponseBody
-    public List<Component> searchComponents(
-            @RequestParam(required = false) String query,
-            @RequestParam(required = false) String type,
-            @RequestParam(required = false) String status) {
-
-        return componentService.filter(query, type, status);
+    public List<Component> searchComponents(@RequestParam(required = false) String query,
+                                            @RequestParam(required = false) String type,
+                                            @RequestParam(required = false) String status,
+                                            Authentication authentication) {
+        User currentUser = getCurrentUser(authentication);
+        return componentService.filter(query, type, status, currentUser);
     }
 
     @GetMapping("/operations/assign")
-    public String assignPage(Model model) {
-        model.addAttribute("components", componentService.getFreeComponentsList());
-        model.addAttribute("computers", computerService.getAllComputers());
+    public String assignPage(Model model, Authentication authentication) {
+        User currentUser = getCurrentUser(authentication);
+
+        model.addAttribute("components", componentService.getAllComponents(currentUser));
+        model.addAttribute("computers", computerService.getAllComputers(currentUser));
         return "assign-component";
     }
 
     @PostMapping("/operations/assign")
     public String assignComponent(@RequestParam String componentId,
-                                  @RequestParam String computerId) {
-        Component component = componentService.getById(componentId);
+                                  @RequestParam String computerId,
+                                  Authentication authentication) {
+        User currentUser = getCurrentUser(authentication);
 
-        if (component != null) {
-            component.setComputerInventoryNumber(computerId);
+        Component component = componentService.getById(componentId, currentUser);
+        Computer computer = computerService.getById(computerId, currentUser);
+
+        if (component != null && computer != null) {
+            component.setComputer(computer);
             componentService.update(component);
         }
+
         return "redirect:/components";
     }
 }

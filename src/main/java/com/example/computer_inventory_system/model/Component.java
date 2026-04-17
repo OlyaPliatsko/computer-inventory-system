@@ -1,13 +1,11 @@
 package com.example.computer_inventory_system.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 @Entity
+@Table(name = "component")
 public class Component {
 
     @Id
@@ -27,19 +25,24 @@ public class Component {
     @Enumerated(EnumType.STRING)
     private ComponentStatus status;
 
-    private String computerInventoryNumber;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "owner_id")
+    private User owner;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "computer_id")
+    private Computer computer;
 
     public Component() {
     }
 
     public Component(String inventoryNumber, String manufacturer, String model,
-                     ComponentType type, ComponentStatus status, String computerInventoryNumber) {
+                     ComponentType type, ComponentStatus status) {
         this.inventoryNumber = inventoryNumber;
         this.manufacturer = manufacturer;
         this.model = model;
         this.type = type;
         this.status = status;
-        this.computerInventoryNumber = computerInventoryNumber;
     }
 
     public String getInventoryNumber() {
@@ -52,6 +55,22 @@ public class Component {
 
     public String getManufacturer() {
         return manufacturer;
+    }
+
+    public User getOwner() {
+        return owner;
+    }
+
+    public Computer getComputer() {
+        return computer;
+    }
+
+    public void setOwner(User owner) {
+        this.owner = owner;
+    }
+
+    public void setComputer(Computer computer) {
+        this.computer = computer;
     }
 
     public void setManufacturer(String manufacturer) {
@@ -80,13 +99,5 @@ public class Component {
 
     public void setStatus(ComponentStatus status) {
         this.status = status;
-    }
-
-    public String getComputerInventoryNumber() {
-        return computerInventoryNumber;
-    }
-
-    public void setComputerInventoryNumber(String computerInventoryNumber) {
-        this.computerInventoryNumber = computerInventoryNumber;
     }
 }

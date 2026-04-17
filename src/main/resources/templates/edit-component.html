@@ -21,7 +21,8 @@
                 <a href="/dashboard" class="gradient-text nav-link nav-link-underline">DASHBOARD</a>
                 <a href="/computers" class="gradient-text nav-link nav-link-underline">COMPUTERS</a>
                 <a href="/components" class="gradient-text nav-link nav-link-underline">COMPONENTS</a>
-                <a href="/dashboard" class="nav-link nav-link-accent">USER 1</a>
+                <span class="nav-link nav-link-accent"
+                      th:text="${loggedInUserName != null ? loggedInUserName : 'GUEST'}">USER</span>
             </nav>
 
             <div class="menu-wrapper">
@@ -44,7 +45,9 @@
                 <a href="/operations">OPERATIONS</a>
                 <a href="/reports">REPORTS</a>
                 <a href="/settings">SETTINGS</a>
-                <a href="/">LOG OUT</a>
+                <form th:action="@{/logout}" method="post" style="margin: 0;">
+                    <button type="submit" class="menu-logout-btn">LOG OUT</button>
+                </form>
             </nav>
         </div>
     </div>
@@ -83,11 +86,12 @@
                 <p class="field-error" th:if="${#fields.hasErrors('type')}" th:errors="*{type}"></p>
 
                 <label for="computerInventoryNumber">Assigned To Computer (optional)</label>
-                <select id="computerInventoryNumber" th:field="*{computerInventoryNumber}">
+                <select id="computerInventoryNumber" name="computerInventoryNumber">
                     <option value="">NONE</option>
                     <option th:each="computer : ${computers}"
                             th:value="${computer.inventoryNumber}"
-                            th:text="${computer.name + ' (' + computer.inventoryNumber + ')'}">
+                            th:text="${computer.name + ' (' + computer.inventoryNumber + ')'}"
+                            th:selected="${component.computer != null and component.computer.inventoryNumber == computer.inventoryNumber}">
                     </option>
                 </select>
 

@@ -22,7 +22,8 @@
                 <a href="/dashboard" class="gradient-text nav-link nav-link-underline">DASHBOARD</a>
                 <a href="/computers" class="gradient-text nav-link nav-link-underline">COMPUTERS</a>
                 <a href="/components" class="gradient-text nav-link nav-link-underline">COMPONENTS</a>
-                <a href="/dashboard" class="nav-link nav-link-accent">USER 1</a>
+                <span class="nav-link nav-link-accent"
+                      th:text="${loggedInUserName != null ? loggedInUserName : 'GUEST'}">USER</span>
             </nav>
 
             <div class="menu-wrapper">
@@ -45,7 +46,9 @@
                 <a href="/search">SEARCH</a>
                 <a href="/operations/assign">ASSIGN COMPONENT</a>
                 <a href="/settings">SETTINGS</a>
-                <a href="/">LOG OUT</a>
+                <form th:action="@{/logout}" method="post" style="margin: 0;">
+                    <button type="submit" class="menu-logout-btn">LOG OUT</button>
+                </form>
             </nav>
         </div>
     </div>
