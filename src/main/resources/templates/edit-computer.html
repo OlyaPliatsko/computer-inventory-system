@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Computer - Computer Inventory System</title>
+    <link rel="stylesheet" href="/css/add-computer.css">
+    <script src="/js/menu.js" defer></script>
+</head>
+<body>
+
+<div class="add-computer-page">
+
+    <svg xmlns="http://www.w3.org/2000/svg" role="presentation" style="display: none;">
+        <filter id="glass-distortion" x="0%" y="0%" width="100%" height="100%" filterUnits="objectBoundingBox">
+            <feTurbulence type="fractalNoise" baseFrequency="0.001 0.005" numOctaves="1" seed="17" result="turbulence"/>
+            <feComponentTransfer in="turbulence" result="mapped">
+                <feFuncR type="gamma" amplitude="1" exponent="10" offset="0.5"/>
+                <feFuncG type="gamma" amplitude="0" exponent="1" offset="0"/>
+                <feFuncB type="gamma" amplitude="0" exponent="1" offset="0.5"/>
+            </feComponentTransfer>
+            <feGaussianBlur in="turbulence" stdDeviation="3" result="softMap"/>
+            <feSpecularLighting in="softMap" surfaceScale="5" specularConstant="1" specularExponent="100" lighting-color="white" result="specLight">
+                <fePointLight x="-200" y="-200" z="300"/>
+            </feSpecularLighting>
+            <feComposite in="specLight" operator="arithmetic" k1="0" k2="1" k3="1" k4="0" result="litImage"/>
+            <feDisplacementMap in="SourceGraphic" in2="softMap" scale="200" xChannelSelector="R" yChannelSelector="G"/>
+        </filter>
+    </svg>
+
+    <header class="page-navbar">
+        <div class="logo">
+            <span class="gradient-text-h">COMPUTER INVENTORY SYSTEM</span>
+        </div>
+
+        <div class="nav-right">
+            <nav class="nav-links">
+                <a href="/dashboard" class="gradient-text nav-link nav-link-underline">DASHBOARD</a>
+                <a href="/computers" class="gradient-text nav-link nav-link-underline">COMPUTERS</a>
+                <a href="/components" class="gradient-text nav-link nav-link-underline">COMPONENTS</a>
+                <a href="/dashboard" class="nav-link nav-link-accent">USER 1</a>
+            </nav>
+
+            <div class="menu-wrapper">
+                <button class="menu-button" id="menuToggle" aria-label="Open menu">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <div class="menu-overlay" id="menuOverlay">
+        <div class="menu-panel" id="menuPanel">
+            <nav class="menu-panel-nav">
+                <a href="/dashboard">DASHBOARD</a>
+                <a href="/computers">COMPUTERS</a>
+                <a href="/components">COMPONENTS</a>
+                <a href="/search">SEARCH</a>
+                <a href="/operations">OPERATIONS</a>
+                <a href="/reports">REPORTS</a>
+                <a href="/settings">SETTINGS</a>
+                <a href="/">LOG OUT</a>
+            </nav>
+        </div>
+    </div>
+
+    <main class="page-main">
+        <div class="page-content">
+            <section class="page-header">
+                <h1 class="gradient-text-h">EDIT COMPUTER</h1>
+                <p>UPDATE COMPUTER INFORMATION IN YOUR INVENTORY SYSTEM</p>
+            </section>
+
+            <section class="form-section">
+                <div class="form-card">
+                    <form th:action="@{/computers/edit}" th:object="${computer}" method="post" class="computer-form">
+
+                        <label>Inventory Number</label>
+                        <input type="text" th:field="*{inventoryNumber}" readonly>
+                        <p class="field-error" th:if="${#fields.hasErrors('inventoryNumber')}" th:errors="*{inventoryNumber}"></p>
+
+                        <label>Computer Name</label>
+                        <input type="text" th:field="*{name}" placeholder="Enter computer name">
+                        <p class="field-error" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></p>
+
+                        <label>Manufacturer</label>
+                        <input type="text" th:field="*{manufacturer}" placeholder="Enter manufacturer">
+                        <p class="field-error" th:if="${#fields.hasErrors('manufacturer')}" th:errors="*{manufacturer}"></p>
+
+                        <label>Model</label>
+                        <input type="text" th:field="*{model}" placeholder="Enter model">
+                        <p class="field-error" th:if="${#fields.hasErrors('model')}" th:errors="*{model}"></p>
+
+                        <label>Responsible Person</label>
+                        <input type="text" th:field="*{responsiblePerson}" placeholder="Enter responsible person">
+                        <p class="field-error" th:if="${#fields.hasErrors('responsiblePerson')}" th:errors="*{responsiblePerson}"></p>
+
+                        <button type="submit" class="glass-btn">SAVE CHANGES</button>
+                    </form>
+                </div>
+            </section>
+        </div>
+    </main>
+
+</div>
+
+</body>
+</html>

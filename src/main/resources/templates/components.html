@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Components - Computer Inventory System</title>
+    <link rel="stylesheet" href="/css/components.css">
+    <script src="/js/menu.js" defer></script>
+</head>
+<body>
+
+<div class="components-page">
+
+    <svg xmlns="http://www.w3.org/2000/svg" role="presentation" style="display: none;">
+        <filter id="glass-distortion" x="0%" y="0%" width="100%" height="100%" filterUnits="objectBoundingBox">
+            <feTurbulence type="fractalNoise" baseFrequency="0.001 0.005" numOctaves="1" seed="17" result="turbulence"/>
+            <feComponentTransfer in="turbulence" result="mapped">
+                <feFuncR type="gamma" amplitude="1" exponent="10" offset="0.5"/>
+                <feFuncG type="gamma" amplitude="0" exponent="1" offset="0"/>
+                <feFuncB type="gamma" amplitude="0" exponent="1" offset="0.5"/>
+            </feComponentTransfer>
+            <feGaussianBlur in="turbulence" stdDeviation="3" result="softMap"/>
+            <feSpecularLighting in="softMap" surfaceScale="5" specularConstant="1" specularExponent="100" lighting-color="white" result="specLight">
+                <fePointLight x="-200" y="-200" z="300"/>
+            </feSpecularLighting>
+            <feComposite in="specLight" in2="SourceGraphic" operator="arithmetic" k1="0" k2="1" k3="1" k4="0" result="litImage"/>
+            <feDisplacementMap in="SourceGraphic" in2="softMap" scale="200" xChannelSelector="R" yChannelSelector="G"/>
+        </filter>
+    </svg>
+
+    <header class="components-navbar">
+        <div class="logo">
+            <span class="gradient-text-h">COMPUTER INVENTORY SYSTEM</span>
+        </div>
+
+        <div class="nav-right">
+            <nav class="nav-links">
+                <a href="/dashboard" class="gradient-text nav-link nav-link-underline">DASHBOARD</a>
+                <a href="/computers" class="gradient-text nav-link nav-link-underline">COMPUTERS</a>
+                <a href="/components" class="gradient-text nav-link nav-link-underline">COMPONENTS</a>
+                <a href="/dashboard" class="nav-link nav-link-accent">USER 1</a>
+            </nav>
+
+            <div class="menu-wrapper">
+                <button class="menu-button" id="menuToggle" aria-label="Open menu">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <div class="menu-overlay" id="menuOverlay">
+        <div class="menu-panel" id="menuPanel">
+            <nav class="menu-panel-nav">
+                <a href="/dashboard">DASHBOARD</a>
+                <a href="/computers">COMPUTERS</a>
+                <a href="/components">COMPONENTS</a>
+                <a href="/search">SEARCH</a>
+                <a href="/operations/assign">ASSIGN COMPONENT</a>
+                <a href="/settings">SETTINGS</a>
+                <a href="/">LOG OUT</a>
+            </nav>
+        </div>
+    </div>
+
+    <main class="components-main">
+
+        <section class="page-header">
+            <h1 class="gradient-text-h">COMPONENTS</h1>
+            <p>MANAGE ALL HARDWARE COMPONENTS IN YOUR INVENTORY</p>
+        </section>
+
+        <section class="mini-stats">
+            <div class="mini-stat-card">
+                <span class="mini-stat-label">TOTAL</span>
+                <span class="mini-stat-value" th:text="${totalComponents}">0</span>
+            </div>
+
+            <div class="mini-stat-card">
+                <span class="mini-stat-label">FREE</span>
+                <span class="mini-stat-value" th:text="${freeComponents}">0</span>
+            </div>
+
+            <div class="mini-stat-card">
+                <span class="mini-stat-label">ASSIGNED</span>
+                <span class="mini-stat-value" th:text="${assignedComponents}">0</span>
+            </div>
+
+            <div class="mini-stat-card">
+                <span class="mini-stat-label">IN REPAIR</span>
+                <span class="mini-stat-value" th:text="${repairComponents}">0</span>
+            </div>
+        </section>
+
+        <section class="toolbar-section">
+            <div class="toolbar-left">
+                <input type="text"
+                       id="searchInput"
+                       class="search-input"
+                       placeholder="SEARCH BY MODEL OR ID">
+
+                <select class="filter-select" id="typeFilter">
+                    <option value="">ALL TYPES</option>
+                    <option value="CPU">CPU</option>
+                    <option value="RAM">RAM</option>
+                    <option value="SSD">SSD</option>
+                    <option value="HDD">HDD</option>
+                    <option value="GPU">GPU</option>
+                    <option value="MOTHERBOARD">MOTHERBOARD</option>
+                    <option value="MONITOR">MONITOR</option>
+                    <option value="KEYBOARD">KEYBOARD</option>
+                    <option value="MOUSE">MOUSE</option>
+                </select>
+
+                <select class="filter-select" id="statusFilter">
+                    <option value="">ALL STATUSES</option>
+                    <option value="FREE">FREE</option>
+                    <option value="ASSIGNED">ASSIGNED</option>
+                    <option value="IN_REPAIR">IN REPAIR</option>
+                </select>
+            </div>
+
+            <div class="toolbar-right">
+                <a href="/components/add" class="glass-btn">ADD COMPONENT</a>
+            </div>
+        </section>
+
+        <section class="table-section">
+            <div class="table-wrapper">
+                <table class="components-table">
+                    <thead>
+                    <tr>
+                        <th>№</th>
+                        <th>ID</th>
+                        <th>MODEL</th>
+                        <th>TYPE</th>
+                        <th>MANUFACTURER</th>
+                        <th>STATUS</th>
+                        <th>ASSIGNED TO</th>
+                        <th>ACTION</th>
+                    </tr>
+                    </thead>
+                    <tbody id="componentsTableBody">
+                    <tr th:each="component, stat : ${components}">
+                        <td th:text="${stat.index + 1}">1</td>
+                        <td th:text="${component.inventoryNumber}">CMP-001</td>
+                        <td th:text="${component.model}">MODEL</td>
+                        <td th:text="${component.type}">TYPE</td>
+                        <td th:text="${component.manufacturer}">MANUFACTURER</td>
+                        <td>
+                            <span class="status-badge"
+                                  th:classappend="${component.status.name() == 'FREE'} ? ' free' :
+                                                  (${component.status.name() == 'ASSIGNED'} ? ' assigned' : ' repair')"
+                                  th:text="${component.status}">
+                                STATUS
+                            </span>
+                        </td>
+                        <td th:text="${component.computerInventoryNumber != null && !component.computerInventoryNumber.isEmpty() ? component.computerInventoryNumber : '-'}">-</td>
+                        <td>
+                            <div class="action-buttons">
+                                <a th:href="@{'/components/edit/' + ${component.inventoryNumber}}" class="action-btn">EDIT</a>
+                                <a th:href="@{'/components/delete/' + ${component.inventoryNumber}}"
+                                   class="action-btn"
+                                   onclick="return confirm('Are you sure you want to delete this component?')">
+                                    DELETE
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+    </main>
+</div>
+
+<script>
+    const searchInput = document.getElementById('searchInput');
+    const typeFilter = document.getElementById('typeFilter');
+    const statusFilter = document.getElementById('statusFilter');
+    const tableBody = document.getElementById('componentsTableBody');
+
+    let searchTimeout;
+
+    function getStatusClass(status) {
+        if (status === 'FREE') return ' free';
+        if (status === 'ASSIGNED') return ' assigned';
+        return ' repair';
+    }
+
+    function renderComponents(components) {
+        tableBody.innerHTML = '';
+
+        if (components.length === 0) {
+            tableBody.innerHTML = `
+                <tr>
+                    <td colspan="8" style="text-align: center; padding: 30px;">
+                        NO COMPONENTS FOUND
+                    </td>
+                </tr>
+            `;
+            return;
+        }
+
+        components.forEach((component, index) => {
+            const assignedTo = component.computerInventoryNumber && component.computerInventoryNumber.trim() !== ''
+                ? component.computerInventoryNumber
+                : '-';
+
+            tableBody.innerHTML += `
+                <tr>
+                    <td>${index + 1}</td>
+                    <td>${component.inventoryNumber ?? ''}</td>
+                    <td>${component.model ?? ''}</td>
+                    <td>${component.type ?? ''}</td>
+                    <td>${component.manufacturer ?? ''}</td>
+                    <td>
+                        <span class="status-badge${getStatusClass(component.status)}">
+                            ${component.status ?? ''}
+                        </span>
+                    </td>
+                    <td>${assignedTo}</td>
+                    <td>
+                        <div class="action-buttons">
+                            <a href="/components/edit/${component.inventoryNumber}" class="action-btn">EDIT</a>
+                            <a href="/components/delete/${component.inventoryNumber}"
+                               class="action-btn"
+                               onclick="return confirm('Are you sure you want to delete this component?')">
+                                DELETE
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+            `;
+        });
+    }
+
+    function loadComponents() {
+        const query = searchInput.value;
+        const type = typeFilter.value;
+        const status = statusFilter.value;
+
+        fetch(`/components/search?query=${encodeURIComponent(query)}&type=${encodeURIComponent(type)}&status=${encodeURIComponent(status)}`)
+            .then(response => response.json())
+            .then(data => renderComponents(data))
+            .catch(error => console.error('Search error:', error));
+    }
+
+    searchInput.addEventListener('input', function () {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(loadComponents, 300);
+    });
+
+    typeFilter.addEventListener('change', loadComponents);
+    statusFilter.addEventListener('change', loadComponents);
+</script>
+
+</body>
+</html>

@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Component - Computer Inventory System</title>
+    <link rel="stylesheet" href="/css/add-component.css">
+    <script src="/js/menu.js" defer></script>
+</head>
+<body>
+
+<div class="add-component-page">
+
+    <header class="add-component-navbar">
+        <div class="logo">
+            <span class="gradient-text-h">COMPUTER INVENTORY SYSTEM</span>
+        </div>
+
+        <div class="nav-right">
+            <nav class="nav-links">
+                <a href="/dashboard" class="gradient-text nav-link nav-link-underline">DASHBOARD</a>
+                <a href="/computers" class="gradient-text nav-link nav-link-underline">COMPUTERS</a>
+                <a href="/components" class="gradient-text nav-link nav-link-underline">COMPONENTS</a>
+                <a href="/dashboard" class="nav-link nav-link-accent">USER 1</a>
+            </nav>
+
+            <div class="menu-wrapper">
+                <button class="menu-button" id="menuToggle" aria-label="Open menu">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <div class="menu-overlay" id="menuOverlay">
+        <div class="menu-panel" id="menuPanel">
+            <nav class="menu-panel-nav">
+                <a href="/dashboard">DASHBOARD</a>
+                <a href="/computers">COMPUTERS</a>
+                <a href="/components">COMPONENTS</a>
+                <a href="/search">SEARCH</a>
+                <a href="/operations">OPERATIONS</a>
+                <a href="/reports">REPORTS</a>
+                <a href="/settings">SETTINGS</a>
+                <a href="/">LOG OUT</a>
+            </nav>
+        </div>
+    </div>
+
+    <main class="main">
+        <div class="form-card">
+            <h1 class="gradient-text-h">EDIT COMPONENT</h1>
+
+            <form th:action="@{/components/edit}" th:object="${component}" method="post" class="component-form">
+
+                <label for="inventoryNumber">Inventory Number</label>
+                <input id="inventoryNumber" type="text" th:field="*{inventoryNumber}" readonly>
+                <p class="field-error" th:if="${#fields.hasErrors('inventoryNumber')}" th:errors="*{inventoryNumber}"></p>
+
+                <label for="manufacturer">Manufacturer</label>
+                <input id="manufacturer" type="text" th:field="*{manufacturer}" placeholder="Enter manufacturer">
+                <p class="field-error" th:if="${#fields.hasErrors('manufacturer')}" th:errors="*{manufacturer}"></p>
+
+                <label for="model">Model</label>
+                <input id="model" type="text" th:field="*{model}" placeholder="Enter model">
+                <p class="field-error" th:if="${#fields.hasErrors('model')}" th:errors="*{model}"></p>
+
+                <label for="type">Type</label>
+                <select id="type" th:field="*{type}">
+                    <option value="">Select type</option>
+                    <option value="CPU">CPU</option>
+                    <option value="RAM">RAM</option>
+                    <option value="SSD">SSD</option>
+                    <option value="HDD">HDD</option>
+                    <option value="GPU">GPU</option>
+                    <option value="MOTHERBOARD">MOTHERBOARD</option>
+                    <option value="MONITOR">MONITOR</option>
+                    <option value="KEYBOARD">KEYBOARD</option>
+                    <option value="MOUSE">MOUSE</option>
+                </select>
+                <p class="field-error" th:if="${#fields.hasErrors('type')}" th:errors="*{type}"></p>
+
+                <label for="computerInventoryNumber">Assigned To Computer (optional)</label>
+                <select id="computerInventoryNumber" th:field="*{computerInventoryNumber}">
+                    <option value="">NONE</option>
+                    <option th:each="computer : ${computers}"
+                            th:value="${computer.inventoryNumber}"
+                            th:text="${computer.name + ' (' + computer.inventoryNumber + ')'}">
+                    </option>
+                </select>
+
+                <button type="submit" class="glass-btn">SAVE CHANGES</button>
+            </form>
+        </div>
+    </main>
+
+</div>
+
+</body>
+</html>

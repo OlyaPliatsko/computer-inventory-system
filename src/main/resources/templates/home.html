@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>model.Computer Inventory System</title>
+    <link rel="stylesheet" href="/css/home.css">
+    <script src="/js/menu.js" defer></script>
+</head>
+<body>
+
+<svg xmlns="http://www.w3.org/2000/svg" role="presentation" style="display: none;">
+    <filter id="glass-distortion" x="0%" y="0%" width="100%" height="100%" filterUnits="objectBoundingBox">
+        <feTurbulence type="fractalNoise" baseFrequency="0.001 0.005" numOctaves="1" seed="17" result="turbulence"/>
+        <feComponentTransfer in="turbulence" result="mapped">
+            <feFuncR type="gamma" amplitude="1" exponent="10" offset="0.5"/>
+            <feFuncG type="gamma" amplitude="0" exponent="1" offset="0"/>
+            <feFuncB type="gamma" amplitude="0" exponent="1" offset="0.5"/>
+        </feComponentTransfer>
+        <feGaussianBlur in="turbulence" stdDeviation="3" result="softMap"/>
+        <feSpecularLighting in="softMap" surfaceScale="5" specularConstant="1" specularExponent="100" lighting-color="white" result="specLight">
+            <fePointLight x="-200" y="-200" z="300"/>
+        </feSpecularLighting>
+        <feComposite in="specLight" operator="arithmetic" k1="0" k2="1" k3="1" k4="0" result="litImage"/>
+        <feDisplacementMap in="SourceGraphic" in2="softMap" scale="200" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+</svg>
+
+<div class="page-wrapper">
+
+    <header class="navbar">
+        <div class="logo">
+            <span class="gradient-text-h">COMPUTER INVENTORY SYSTEM</span>
+        </div>
+
+        <div class="nav-right">
+            <nav class="nav-links">
+                <a href="#features" class="gradient-text nav-link nav-link-underline">FEATURES</a>
+                <a href="#about" class="gradient-text nav-link nav-link-underline">ABOUT US</a>
+                <a href="/login" class="nav-link nav-link-accent">LOGIN | REGISTER</a>
+            </nav>
+
+            <div class="menu-wrapper">
+                <button class="menu-button" id="menuToggle" aria-label="Open menu">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <div class="menu-overlay" id="menuOverlay">
+        <div class="menu-panel" id="menuPanel">
+            <nav class="menu-panel-nav">
+                <a href="#top">HOME</a>
+                <a href="#about">ABOUT</a>
+                <a href="#features">FEATURES</a>
+                <a href="/register">REGISTER</a>
+                <a href="/login">LOGIN</a>
+            </nav>
+        </div>
+    </div>
+
+    <main>
+        <section class="hero" id="top">
+            <div class="hero-content">
+                <div class="hero-text">
+                    <h1 class="gradient-text-h">SMART MANAGEMENT FOR YOUR COMPUTER HARDWARE</h1>
+                    <p>
+                        A WEB SYSTEM FOR TRACKING COMPUTERS, MANAGING HARDWARE
+                        COMPONENTS, AND MAINTAINING YOUR ORGANIZATION'S IT INVENTORY.
+                    </p>
+                </div>
+
+                <div class="hero-buttons">
+                    <a href="/register" class="glass-btn">GET STARTED</a>
+                    <a href="#features" class="glass-btn">VIEW DEMO</a>
+                </div>
+            </div>
+
+            <div class="hero-image">
+                <img src="/images/laptop-main.png" alt="Laptop">
+            </div>
+        </section>
+
+        <section class="info-section" id="about">
+            <div class="about-block">
+                <h2 class="gradient-text-h">ABOUT THE SYSTEM</h2>
+                <p>
+                    THE COMPUTER INVENTORY SYSTEM IS DESIGNED TO HELP ORGANIZATIONS
+                    MANAGE THEIR HARDWARE RESOURCES EFFICIENTLY. IT ALLOWS
+                    ADMINISTRATORS TO STORE INFORMATION ABOUT COMPUTERS, MANAGE
+                    HARDWARE COMPONENTS, TRACK THEIR STATUS, AND PERFORM OPERATIONS
+                    SUCH AS ASSIGNING OR TRANSFERRING COMPONENTS BETWEEN COMPUTERS.
+                </p>
+            </div>
+
+            <div class="features-block" id="features">
+                <h2 class="gradient-text-h">KEY FEATURES</h2>
+
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <h3 class="gradient-text">COMPUTER MANAGEMENT</h3>
+                        <p>MANAGE AND TRACK ALL COMPUTERS WITHIN AN ORGANIZATION.</p>
+                    </div>
+
+                    <div class="feature-card">
+                        <h3 class="gradient-text">COMPONENT TRACKING</h3>
+                        <p>STORE AND MANAGE HARDWARE COMPONENTS SUCH AS CPU, RAM, SSD, AND GPU.</p>
+                    </div>
+
+                    <div class="feature-card">
+                        <h3 class="gradient-text">SMART SEARCH</h3>
+                        <p>SEARCH COMPONENTS BY TYPE, MANUFACTURER, INVENTORY NUMBER, OR STATUS.</p>
+                    </div>
+
+                    <div class="feature-card">
+                        <h3 class="gradient-text">INVENTORY OPERATIONS</h3>
+                        <p>ASSIGN COMPONENTS TO COMPUTERS, TRANSFER THEM, OR REMOVE THEM FROM SYSTEMS.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="system-details-section">
+            <div class="system-details-image">
+                <img src="/images/laptop-side.png" alt="Laptop side view">
+            </div>
+
+            <div class="system-details-content">
+                <div class="audience-section">
+                    <h2 class="gradient-text-h">WHO IS THIS SYSTEM FOR?</h2>
+
+                    <div class="audience-grid">
+                        <p>IT ADMINISTRATORS</p>
+                        <p>SYSTEM ADMINISTRATORS</p>
+                        <p>TECHNICAL DEPARTMENTS</p>
+                        <p>ORGANIZATIONS MANAGING COMPUTER INFRASTRUCTURE</p>
+                    </div>
+                </div>
+
+                <div class="steps-section">
+                    <h2 class="gradient-text-h">HOW THE SYSTEM WORKS</h2>
+
+                    <div class="steps-grid">
+                        <div class="step-card">
+                            <h3 class="gradient-text">STEP 1</h3>
+                            <p>REGISTER YOUR ORGANIZATION AND CREATE AN INVENTORY.</p>
+                        </div>
+
+                        <div class="step-card">
+                            <h3 class="gradient-text">STEP 2</h3>
+                            <p>ADD COMPUTERS AND HARDWARE COMPONENTS.</p>
+                        </div>
+
+                        <div class="step-card">
+                            <h3 class="gradient-text">STEP 3</h3>
+                            <p>ASSIGN COMPONENTS TO COMPUTERS.</p>
+                        </div>
+
+                        <div class="step-card">
+                            <h3 class="gradient-text">STEP 4</h3>
+                            <p>TRACK AND MANAGE HARDWARE RESOURCES.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="system-details-button">
+                    <a href="/register" class="glass-btn">START MANAGING YOUR INVENTORY</a>
+                </div>
+
+                <footer class="home-footer">
+                    <div>
+                        <p>COMPUTER INVENTORY SYSTEM</p>
+                        <p>COURSE PROJECT</p>
+                    </div>
+
+                    <div>
+                        <p>AUTHOR:</p>
+                        <p>PLIATSKO OLHA</p>
+                    </div>
+
+                    <div>
+                        <p>LVIV POLYTECHNIC</p>
+                        <p>NATIONAL UNIVERSITY</p>
+                        <p>2026</p>
+                    </div>
+                </footer>
+            </div>
+        </section>
+    </main>
+
+</div>
+
+</body>
+</html>

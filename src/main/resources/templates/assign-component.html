@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assign Component - Computer Inventory System</title>
+    <link rel="stylesheet" href="/css/assign-component.css">
+    <script src="/js/menu.js" defer></script>
+</head>
+<body>
+
+<div class="assign-page">
+
+    <!-- NAVBAR -->
+    <header class="page-navbar">
+        <div class="logo">
+            <span class="gradient-text-h">COMPUTER INVENTORY SYSTEM</span>
+        </div>
+
+        <div class="nav-right">
+            <nav class="nav-links">
+                <a href="/dashboard" class="gradient-text nav-link nav-link-underline">DASHBOARD</a>
+                <a href="/computers" class="gradient-text nav-link nav-link-underline">COMPUTERS</a>
+                <a href="/components" class="gradient-text nav-link nav-link-underline">COMPONENTS</a>
+                <a href="/dashboard" class="nav-link nav-link-accent">USER 1</a>
+            </nav>
+
+            <div class="menu-wrapper">
+                <button class="menu-button" id="menuToggle" aria-label="Open menu">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- OVERLAY MENU -->
+    <div class="menu-overlay" id="menuOverlay">
+        <div class="menu-panel" id="menuPanel">
+            <nav class="menu-panel-nav">
+                <a href="/dashboard">DASHBOARD</a>
+                <a href="/computers">COMPUTERS</a>
+                <a href="/components">COMPONENTS</a>
+                <a href="/search">SEARCH</a>
+                <a href="/operations/assign">ASSIGN COMPONENT</a>
+                <a href="/settings">SETTINGS</a>
+                <a href="/">LOG OUT</a>
+            </nav>
+        </div>
+    </div>
+
+    <!-- MAIN -->
+    <main class="page-main">
+        <div class="page-content">
+
+            <section class="page-header">
+                <h1 class="gradient-text-h">ASSIGN COMPONENT</h1>
+                <p>ASSIGN A FREE COMPONENT TO A COMPUTER</p>
+            </section>
+
+            <section class="form-section">
+                <div class="form-card">
+
+                    <form action="/operations/assign" method="post" class="assign-form">
+
+                        <!-- COMPONENT -->
+                        <label for="componentId">Choose Component</label>
+                        <select id="componentId" name="componentId" required>
+                            <option value="">Select component</option>
+                            <option th:each="component : ${components}"
+                                    th:value="${component.inventoryNumber}"
+                                    th:text="${component.model + ' | ' + component.manufacturer + ' (' + component.inventoryNumber + ')'}">
+                            </option>
+                        </select>
+
+                        <!-- COMPUTER -->
+                        <label for="computerId">Choose Computer</label>
+                        <select id="computerId" name="computerId" required>
+                            <option value="">Select computer</option>
+                            <option th:each="computer : ${computers}"
+                                    th:value="${computer.inventoryNumber}"
+                                    th:text="${computer.name + ' (' + computer.inventoryNumber + ')'}">
+                            </option>
+                        </select>
+
+                        <!-- BUTTON -->
+                        <button type="submit" class="glass-btn">
+                            ASSIGN COMPONENT
+                        </button>
+
+                    </form>
+
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+</div>
+
+<!-- VALIDATION SCRIPT -->
+<script>
+    const form = document.querySelector('.assign-form');
+
+    form.addEventListener('submit', function (e) {
+        const component = document.getElementById('componentId').value;
+        const computer = document.getElementById('computerId').value;
+
+        if (!component || !computer) {
+            e.preventDefault();
+            alert('Please select both component and computer');
+        }
+    });
+</script>
+
+</body>
+</html>

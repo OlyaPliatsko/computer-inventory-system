@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Components - Computer Inventory System</title>
+    <link rel="stylesheet" href="/css/search.css">
+    <script src="/js/menu.js" defer></script>
+</head>
+<body>
+
+<div class="search-page">
+
+    <header class="page-navbar">
+        <div class="logo">
+            <span class="gradient-text-h">COMPUTER INVENTORY SYSTEM</span>
+        </div>
+
+        <div class="nav-right">
+            <nav class="nav-links">
+                <a href="/dashboard" class="gradient-text nav-link nav-link-underline">DASHBOARD</a>
+                <a href="/computers" class="gradient-text nav-link nav-link-underline">COMPUTERS</a>
+                <a href="/components" class="gradient-text nav-link nav-link-underline">COMPONENTS</a>
+                <a href="/dashboard" class="nav-link nav-link-accent">USER 1</a>
+            </nav>
+
+            <div class="menu-wrapper">
+                <button class="menu-button" id="menuToggle" aria-label="Open menu">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <div class="menu-overlay" id="menuOverlay">
+        <div class="menu-panel" id="menuPanel">
+            <nav class="menu-panel-nav">
+                <a href="/dashboard">DASHBOARD</a>
+                <a href="/computers">COMPUTERS</a>
+                <a href="/components">COMPONENTS</a>
+                <a href="/search">SEARCH</a>
+                <a href="/operations/assign">ASSIGN COMPONENT</a>
+                <a href="/settings">SETTINGS</a>
+                <a href="/">LOG OUT</a>
+            </nav>
+        </div>
+    </div>
+
+    <main class="page-main">
+        <div class="page-content">
+            <section class="page-header">
+                <h1 class="gradient-text-h">SEARCH COMPONENTS</h1>
+                <p>FIND COMPONENTS BY MODEL OR INVENTORY NUMBER</p>
+            </section>
+
+            <section class="search-section">
+                <input type="text"
+                       id="searchInput"
+                       class="search-input"
+                       placeholder="SEARCH BY MODEL OR ID">
+            </section>
+
+            <section class="table-section">
+                <div class="table-wrapper">
+                    <table class="components-table">
+                        <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>MODEL</th>
+                            <th>TYPE</th>
+                            <th>MANUFACTURER</th>
+                            <th>STATUS</th>
+                            <th>ASSIGNED TO</th>
+                        </tr>
+                        </thead>
+                        <tbody id="resultsBody">
+                        <tr>
+                            <td colspan="6" style="text-align: center; padding: 30px;">
+                                START TYPING TO SEARCH COMPONENTS
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </div>
+    </main>
+
+</div>
+
+<script>
+    const searchInput = document.getElementById('searchInput');
+    const resultsBody = document.getElementById('resultsBody');
+
+    let searchTimeout;
+
+    function getStatusClass(status) {
+        if (status === 'FREE') return ' free';
+        if (status === 'ASSIGNED') return ' assigned';
+        return ' repair';
+    }
+
+    function renderResults(components) {
+        resultsBody.innerHTML = '';
+
+        if (components.length === 0) {
+            resultsBody.innerHTML = `
+                <tr>
+                    <td colspan="6" style="text-align: center; padding: 30px;">
+                        NO COMPONENTS FOUND
+                    </td>
+                </tr>
+            `;
+            return;
+        }
+
+        components.forEach(component => {
+            const assignedTo = component.computerInventoryNumber && component.computerInventoryNumber.trim() !== ''
+                ? component.computerInventoryNumber
+                : '-';
+
+            resultsBody.innerHTML += `
+                <tr>
+                    <td>${component.inventoryNumber ?? ''}</td>
+                    <td>${component.model ?? ''}</td>
+                    <td>${component.type ?? ''}</td>
+                    <td>${component.manufacturer ?? ''}</td>
+                    <td>
+                        <span class="status-badge${getStatusClass(component.status)}">
+                            ${component.status ?? ''}
+                        </span>
+                    </td>
+                    <td>${assignedTo}</td>
+                </tr>
+            `;
+        });
+    }
+
+    searchInput.addEventListener('input', function () {
+        clearTimeout(searchTimeout);
+
+        const query = this.value;
+
+        searchTimeout = setTimeout(() => {
+            fetch(`/components/search?query=${encodeURIComponent(query)}`)
+                .then(response => response.json())
+                .then(data => renderResults(data))
+                .catch(error => console.error('Search error:', error));
+        }, 300);
+    });
+</script>
+
+</body>
+</html>
