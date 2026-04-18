@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - model.Computer Inventory System</title>
+    <title>Dashboard - Computer Inventory System</title>
     <link rel="stylesheet" href="/css/dashboard.css">
     <script src="/js/menu.js" defer></script>
 </head>
@@ -36,9 +36,9 @@
 
         <div class="nav-right">
             <nav class="nav-links">
-                    <a href="/dashboard" class="gradient-text nav-link nav-link-underline">DASHBOARD</a>
-                    <a href="/computers" class="gradient-text nav-link nav-link-underline">COMPUTERS</a>
-                    <a href="/components" class="gradient-text nav-link nav-link-underline">COMPONENTS</a>
+                <a href="/dashboard" class="gradient-text nav-link nav-link-underline">DASHBOARD</a>
+                <a href="/computers" class="gradient-text nav-link nav-link-underline">COMPUTERS</a>
+                <a href="/components" class="gradient-text nav-link nav-link-underline">COMPONENTS</a>
                 <span class="nav-link nav-link-accent"
                       th:text="${loggedInUserName != null ? loggedInUserName : 'GUEST'}">USER</span>
             </nav>
@@ -61,10 +61,10 @@
                 <a href="/computers">COMPUTERS</a>
                 <a href="/components">COMPONENTS</a>
                 <a href="/search">SEARCH</a>
-                <a href="/operations">OPERATIONS</a>
-                <a href="/reports">REPORTS</a>
-                <a href="/settings">SETTINGS</a>
-                <form th:action="@{/logout}" method="post" style="margin: 0;">
+                <a href="/operations/assign">ASSIGN COMPONENT</a>
+                <a href="/operations/transfer">TRANSFER COMPONENT</a>
+
+                <form th:action="@{/logout}" method="post">
                     <button type="submit" class="menu-logout-btn">LOG OUT</button>
                 </form>
             </nav>
@@ -117,11 +117,43 @@
                 <a href="/operations/assign" class="glass-btn">ASSIGN COMPONENT</a>
                 <a href="/search" class="glass-btn">SEARCH COMPONENT</a>
             </div>
+
+            <div class="data-tools-section">
+                <h3 class="gradient-text-h data-tools-title">DATA TOOLS</h3>
+
+                <div class="data-tools-grid">
+                    <a href="/data/export" class="glass-btn data-btn">EXPORT DATA</a>
+
+                    <form th:action="@{/data/import}" method="post" enctype="multipart/form-data" class="import-form">
+                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+
+                        <label for="importFile" class="file-upload-label">SELECT JSON FILE</label>
+                        <input type="file" id="importFile" name="file" accept=".json" required>
+                        <span id="fileName" class="file-name">NO FILE CHOSEN</span>
+                        <button type="submit" class="glass-btn data-btn">IMPORT DATA</button>
+                    </form>
+                </div>
+            </div>
         </section>
 
     </main>
 
 </div>
+
+<script>
+    const importFileInput = document.getElementById('importFile');
+    const fileNameLabel = document.getElementById('fileName');
+
+    if (importFileInput && fileNameLabel) {
+        importFileInput.addEventListener('change', function () {
+            if (this.files && this.files.length > 0) {
+                fileNameLabel.textContent = this.files[0].name;
+            } else {
+                fileNameLabel.textContent = 'NO FILE CHOSEN';
+            }
+        });
+    }
+</script>
 
 </body>
 </html>

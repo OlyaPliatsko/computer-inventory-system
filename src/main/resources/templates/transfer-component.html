@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transfer Component - Computer Inventory System</title>
+    <link rel="stylesheet" href="/css/assign-component.css">
+    <script src="/js/menu.js" defer></script>
+</head>
+<body>
+
+<div class="assign-page">
+
+    <header class="page-navbar">
+        <div class="logo">
+            <span class="gradient-text-h">COMPUTER INVENTORY SYSTEM</span>
+        </div>
+
+        <div class="nav-right">
+            <nav class="nav-links">
+                <a href="/dashboard" class="gradient-text nav-link nav-link-underline">DASHBOARD</a>
+                <a href="/computers" class="gradient-text nav-link nav-link-underline">COMPUTERS</a>
+                <a href="/components" class="gradient-text nav-link nav-link-underline">COMPONENTS</a>
+                <span class="nav-link nav-link-accent"
+                      th:text="${loggedInUserName != null ? loggedInUserName : 'USER'}">USER</span>
+            </nav>
+
+            <div class="menu-wrapper">
+                <button class="menu-button" id="menuToggle" aria-label="Open menu">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <div class="menu-overlay" id="menuOverlay">
+        <div class="menu-panel" id="menuPanel">
+            <nav class="menu-panel-nav">
+                <a href="/dashboard">DASHBOARD</a>
+                <a href="/computers">COMPUTERS</a>
+                <a href="/components">COMPONENTS</a>
+                <a href="/search">SEARCH</a>
+                <a href="/operations/assign">ASSIGN COMPONENT</a>
+                <a href="/operations/transfer">TRANSFER COMPONENT</a>
+
+                <form th:action="@{/logout}" method="post">
+                    <button type="submit" class="menu-logout-btn">LOG OUT</button>
+                </form>
+            </nav>
+        </div>
+    </div>
+
+    <main class="page-main">
+        <div class="page-content">
+            <section class="page-header">
+                <h1 class="gradient-text-h">TRANSFER COMPONENT</h1>
+                <p>MOVE A COMPONENT FROM ONE COMPUTER TO ANOTHER</p>
+            </section>
+
+            <section class="form-section">
+                <div class="form-card">
+                    <form th:action="@{/operations/transfer}" method="post" class="assign-form">
+
+                        <div class="form-group">
+                            <label for="componentId">Choose Assigned Component</label>
+                            <select id="componentId" name="componentId" required>
+                                <option value="">Select component</option>
+                                <option th:each="component : ${components}"
+                                        th:value="${component.inventoryNumber}"
+                                        th:text="${component.model + ' (' + component.inventoryNumber + ') - current: ' + component.computer.inventoryNumber}">
+                                </option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="computerId">Choose New Computer</label>
+                            <select id="computerId" name="computerId" required>
+                                <option value="">Select computer</option>
+                                <option th:each="computer : ${computers}"
+                                        th:value="${computer.inventoryNumber}"
+                                        th:text="${computer.name + ' (' + computer.inventoryNumber + ')'}">
+                                </option>
+                            </select>
+                        </div>
+
+                        <button type="submit" class="glass-btn">TRANSFER COMPONENT</button>
+
+                        <p class="form-message error-message" th:if="${param.error}">
+                            Transfer failed. Please check your selected component and computer.
+                        </p>
+                    </form>
+                </div>
+            </section>
+        </div>
+    </main>
+
+</div>
+
+</body>
+</html>

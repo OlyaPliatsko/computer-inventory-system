@@ -2,6 +2,7 @@ package com.example.computer_inventory_system.service;
 
 import com.example.computer_inventory_system.model.*;
 import com.example.computer_inventory_system.repository.ComponentRepository;
+import com.example.computer_inventory_system.repository.ComputerRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -10,9 +11,12 @@ import java.util.List;
 public class ComponentService {
 
     private final ComponentRepository repository;
+    private final ComputerRepository computerRepository;
 
-    public ComponentService(ComponentRepository repository) {
+    public ComponentService(ComponentRepository repository, ComputerRepository computerRepository) {
         this.repository = repository;
+        this.computerRepository = computerRepository;
+
     }
 
     public List<Component> getAllComponents(User owner) {
@@ -50,16 +54,18 @@ public class ComponentService {
         }
     }
 
-    public List<Component> filter(String query, String type, String status, User owner) {
-        List<Component> components;
+    public List<Component> filter(String query, String type, String status, String computerId, User owner) {
+        List<Component> components = repository.findByOwner(owner);
 
-        if (query == null || query.isBlank()) {
-            components = repository.findByOwner(owner);
-        } else {
-            components = repository.findByOwnerAndModelContainingIgnoreCaseOrOwnerAndInventoryNumberContainingIgnoreCase(
-                    owner, query,
-                    owner, query
-            );
+        if (query != null && !query.isBlank()) {
+            String lowerQuery = query.toLowerCase();
+
+            components = components.stream()
+                    .filter(component ->
+                            component.getInventoryNumber().toLowerCase().contains(lowerQuery) ||
+                                    component.getModel().toLowerCase().contains(lowerQuery) ||
+                                    component.getManufacturer().toLowerCase().contains(lowerQuery))
+                    .toList();
         }
 
         if (type != null && !type.isBlank()) {
@@ -74,6 +80,19 @@ public class ComponentService {
             components = components.stream()
                     .filter(component -> component.getStatus() == componentStatus)
                     .toList();
+        }
+
+        if (computerId != null && !computerId.isBlank()) {
+            if (computerId.equals("FREE_ONLY")) {
+                components = components.stream()
+                        .filter(component -> component.getComputer() == null)
+                        .toList();
+            } else {
+                components = components.stream()
+                        .filter(component -> component.getComputer() != null)
+                        .filter(component -> component.getComputer().getInventoryNumber().equals(computerId))
+                        .toList();
+            }
         }
 
         return components;
@@ -103,5 +122,51 @@ public class ComponentService {
 
     public List<Component> getByComputer(User owner, Computer computer) {
         return repository.findByOwnerAndComputer(owner, computer);
+    }
+
+    public boolean unassignComponent(String componentId, User owner) {
+        Component component = repository.findByInventoryNumberAndOwner(componentId, owner).orElse(null);
+
+        if (component == null) {
+            return false;
+        }
+
+        if (component.getComputer() == null) {
+            return false;
+        }
+
+        component.setComputer(null);
+        component.setStatus(ComponentStatus.FREE);
+        repository.save(component);
+
+        return true;
+    }
+
+    public boolean transferComponent(String componentId, String newComputerId, User owner) {
+        Component component = repository.findByInventoryNumberAndOwner(componentId, owner).orElse(null);
+
+        if (component == null) {
+            return false;
+        }
+
+        if (component.getComputer() == null) {
+            return false;
+        }
+
+        Computer newComputer = computerRepository.findByInventoryNumberAndOwner(newComputerId, owner).orElse(null);
+
+        if (newComputer == null) {
+            return false;
+        }
+
+        if (component.getComputer().getInventoryNumber().equals(newComputerId)) {
+            return false;
+        }
+
+        component.setComputer(newComputer);
+        component.setStatus(ComponentStatus.ASSIGNED);
+        repository.save(component);
+
+        return true;
     }
 }

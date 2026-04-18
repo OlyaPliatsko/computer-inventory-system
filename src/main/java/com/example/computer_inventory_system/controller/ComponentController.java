@@ -41,7 +41,7 @@ public class ComponentController {
                              Authentication authentication) {
         User currentUser = getCurrentUser(authentication);
 
-        model.addAttribute("components", componentService.filter(query, null, null, currentUser));
+        model.addAttribute("components", componentService.filter(query, null, null, null, currentUser));
         model.addAttribute("query", query);
 
         model.addAttribute("totalComponents", componentService.getTotalComponents(currentUser));
@@ -139,9 +139,10 @@ public class ComponentController {
     public List<Component> searchComponents(@RequestParam(required = false) String query,
                                             @RequestParam(required = false) String type,
                                             @RequestParam(required = false) String status,
+                                            @RequestParam(required = false) String computerId,
                                             Authentication authentication) {
         User currentUser = getCurrentUser(authentication);
-        return componentService.filter(query, type, status, currentUser);
+        return componentService.filter(query, type, status, computerId, currentUser);
     }
 
     @GetMapping("/operations/assign")
@@ -179,5 +180,47 @@ public class ComponentController {
         componentService.update(component);
 
         return "redirect:/components?assignedSuccess=true";
+    }
+
+    @PostMapping("/components/unassign/{inventoryNumber}")
+    public String unassignComponent(@PathVariable String inventoryNumber,
+                                    Authentication authentication) {
+        User currentUser = getCurrentUser(authentication);
+
+        boolean success = componentService.unassignComponent(inventoryNumber, currentUser);
+
+        if (!success) {
+            return "redirect:/components?unassignError=true";
+        }
+
+        return "redirect:/components?unassignSuccess=true";
+    }
+
+    @GetMapping("/operations/transfer")
+    public String transferPage(Model model, Authentication authentication) {
+        User currentUser = getCurrentUser(authentication);
+
+        model.addAttribute("components", componentService.getAllComponents(currentUser)
+                .stream()
+                .filter(component -> component.getComputer() != null)
+                .toList());
+
+        model.addAttribute("computers", computerService.getAllComputers(currentUser));
+
+        return "transfer-component";
+    }
+
+    @PostMapping("/operations/transfer")
+    public String transferComponent(@RequestParam String componentId,
+                                    @RequestParam String computerId,
+                                    Authentication authentication) {
+        User currentUser = getCurrentUser(authentication);
+
+        boolean success = componentService.transferComponent(componentId, computerId, currentUser);
+
+        if (!success) {
+            return "redirect:/operations/transfer?error=true";
+        }
+        return "redirect:/components?transferSuccess=true";
     }
 }

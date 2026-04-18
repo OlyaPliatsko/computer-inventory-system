@@ -168,6 +168,15 @@
                                    onclick="return confirm('Are you sure you want to delete this component?')">
                                     DELETE
                                 </a>
+                                <form th:if="${component.computer != null}"
+                                      th:action="@{'/components/unassign/' + ${component.inventoryNumber}}"
+                                      method="post"
+                                      style="display:inline;">
+                                    <button type="submit" class="action-btn"
+                                            onclick="return confirm('Are you sure you want to unassign this component?')">
+                                        UNASSIGN
+                                    </button>
+                                </form>
                             </div>
                         </td>
                     </tr>

@@ -115,7 +115,14 @@ public class PageController {
     }
 
     @GetMapping("/search")
-    public String search() {
+    public String search(Model model, Authentication authentication) {
+        User currentUser = getCurrentUser(authentication);
+
+        if (currentUser == null) {
+            return "redirect:/login";
+        }
+
+        model.addAttribute("computers", computerService.getAllComputers(currentUser));
         return "search";
     }
 }

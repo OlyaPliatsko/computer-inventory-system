@@ -43,6 +43,7 @@
                 <a href="/components">COMPONENTS</a>
                 <a href="/search">SEARCH</a>
                 <a href="/operations/assign">ASSIGN COMPONENT</a>
+                <a href="/operations/transfer">TRANSFER COMPONENT</a>
 
                 <form th:action="@{/logout}" method="post">
                     <button type="submit" class="menu-logout-btn">LOG OUT</button>
@@ -55,14 +56,43 @@
         <div class="page-content">
             <section class="page-header">
                 <h1 class="gradient-text-h">SEARCH COMPONENTS</h1>
-                <p>FIND COMPONENTS BY MODEL OR INVENTORY NUMBER</p>
+                <p>FIND COMPONENTS BY MODEL, INVENTORY NUMBER, MANUFACTURER, TYPE, STATUS OR COMPUTER</p>
             </section>
 
-            <section class="search-section">
+            <section class="search-section search-filters">
                 <input type="text"
                        id="searchInput"
                        class="search-input"
-                       placeholder="SEARCH BY MODEL OR ID">
+                       placeholder="SEARCH BY MODEL, ID OR MANUFACTURER">
+
+                <select id="typeFilter" class="search-input">
+                    <option value="">ALL TYPES</option>
+                    <option value="CPU">CPU</option>
+                    <option value="RAM">RAM</option>
+                    <option value="SSD">SSD</option>
+                    <option value="HDD">HDD</option>
+                    <option value="GPU">GPU</option>
+                    <option value="MOTHERBOARD">MOTHERBOARD</option>
+                    <option value="MONITOR">MONITOR</option>
+                    <option value="KEYBOARD">KEYBOARD</option>
+                    <option value="MOUSE">MOUSE</option>
+                </select>
+
+                <select id="statusFilter" class="search-input">
+                    <option value="">ALL STATUSES</option>
+                    <option value="FREE">FREE</option>
+                    <option value="ASSIGNED">ASSIGNED</option>
+                    <option value="IN_REPAIR">IN REPAIR</option>
+                </select>
+
+                <select id="computerFilter" class="search-input">
+                    <option value="">ALL COMPUTERS</option>
+                    <option value="FREE_ONLY">FREE COMPONENTS ONLY</option>
+                    <option th:each="computer : ${computers}"
+                            th:value="${computer.inventoryNumber}"
+                            th:text="${computer.name + ' (' + computer.inventoryNumber + ')'}">
+                    </option>
+                </select>
             </section>
 
             <section class="table-section">
@@ -81,7 +111,7 @@
                         <tbody id="resultsBody">
                         <tr>
                             <td colspan="6" class="table-empty">
-                                START TYPING TO SEARCH COMPONENTS
+                                START TYPING OR SELECT FILTERS TO SEARCH COMPONENTS
                             </td>
                         </tr>
                         </tbody>
@@ -95,6 +125,9 @@
 
 <script>
     const searchInput = document.getElementById('searchInput');
+    const typeFilter = document.getElementById('typeFilter');
+    const statusFilter = document.getElementById('statusFilter');
+    const computerFilter = document.getElementById('computerFilter');
     const resultsBody = document.getElementById('resultsBody');
 
     let searchTimeout;
@@ -111,9 +144,7 @@
         if (!components || components.length === 0) {
             resultsBody.innerHTML = `
                 <tr>
-                    <td colspan="6" class="table-empty">
-                        NO COMPONENTS FOUND
-                    </td>
+                    <td colspan="6" class="table-empty">NO COMPONENTS FOUND</td>
                 </tr>
             `;
             return;
@@ -141,8 +172,13 @@
         });
     }
 
-    function loadSearchResults(query) {
-        fetch(`/components/search?query=${encodeURIComponent(query)}`)
+    function loadSearchResults() {
+        const query = searchInput.value.trim();
+        const type = typeFilter.value;
+        const status = statusFilter.value;
+        const computerId = computerFilter.value;
+
+        fetch(`/components/search?query=${encodeURIComponent(query)}&type=${encodeURIComponent(type)}&status=${encodeURIComponent(status)}&computerId=${encodeURIComponent(computerId)}`)
             .then(response => {
                 if (!response.ok) {
                     throw new Error('Server error');
@@ -154,34 +190,21 @@
                 console.error('Search error:', error);
                 resultsBody.innerHTML = `
                     <tr>
-                        <td colspan="6" class="table-empty">
-                            SEARCH FAILED
-                        </td>
+                        <td colspan="6" class="table-empty">SEARCH FAILED</td>
                     </tr>
                 `;
             });
     }
 
-    searchInput.addEventListener('input', function () {
+    function delayedSearch() {
         clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(loadSearchResults, 300);
+    }
 
-        const query = this.value.trim();
-
-        searchTimeout = setTimeout(() => {
-            if (query === '') {
-                resultsBody.innerHTML = `
-                    <tr>
-                        <td colspan="6" class="table-empty">
-                            START TYPING TO SEARCH COMPONENTS
-                        </td>
-                    </tr>
-                `;
-                return;
-            }
-
-            loadSearchResults(query);
-        }, 300);
-    });
+    searchInput.addEventListener('input', delayedSearch);
+    typeFilter.addEventListener('change', loadSearchResults);
+    statusFilter.addEventListener('change', loadSearchResults);
+    computerFilter.addEventListener('change', loadSearchResults);
 </script>
 
 </body>

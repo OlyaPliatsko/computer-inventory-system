@@ -24,4 +24,8 @@ public interface ComponentRepository extends JpaRepository<Component, String> {
     Optional<Component> findByInventoryNumberAndOwner(String inventoryNumber, User owner);
 
     List<Component> findByOwnerAndComputer(User owner, Computer computer);
+
+    List<Component> findByOwnerAndManufacturerContainingIgnoreCase(User owner, String manufacturer);
+
+    List<Component> findByOwnerAndComputerInventoryNumber(User owner, String computerInventoryNumber);
 }
