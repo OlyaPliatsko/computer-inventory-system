@@ -88,7 +88,6 @@
                 <label for="computerInventoryNumber">Assigned To Computer (optional)</label>
                 <select id="computerInventoryNumber" name="computerInventoryNumber">
                     <option value="">NONE</option>
-                    <option value="">NONE</option>
                     <option th:each="computer : ${computers}"
                             th:value="${computer.inventoryNumber}"
                             th:text="${computer.name + ' (' + computer.inventoryNumber + ')'}"

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,7 +11,6 @@
 
 <div class="assign-page">
 
-    <!-- NAVBAR -->
     <header class="page-navbar">
         <div class="logo">
             <span class="gradient-text-h">COMPUTER INVENTORY SYSTEM</span>
@@ -36,7 +35,6 @@
         </div>
     </header>
 
-    <!-- OVERLAY MENU -->
     <div class="menu-overlay" id="menuOverlay">
         <div class="menu-panel" id="menuPanel">
             <nav class="menu-panel-nav">
@@ -45,15 +43,14 @@
                 <a href="/components">COMPONENTS</a>
                 <a href="/search">SEARCH</a>
                 <a href="/operations/assign">ASSIGN COMPONENT</a>
-                <a href="/settings">SETTINGS</a>
-                <form th:action="@{/logout}" method="post" style="margin: 0;">
+
+                <form th:action="@{/logout}" method="post">
                     <button type="submit" class="menu-logout-btn">LOG OUT</button>
                 </form>
             </nav>
         </div>
     </div>
 
-    <!-- MAIN -->
     <main class="page-main">
         <div class="page-content">
 
@@ -64,36 +61,41 @@
 
             <section class="form-section">
                 <div class="form-card">
+                    <form th:action="@{/operations/assign}" method="post" class="assign-form">
 
-                    <form action="/operations/assign" method="post" class="assign-form">
+                        <div class="form-group">
+                            <label for="componentId">Choose Component</label>
+                            <select id="componentId" name="componentId" required>
+                                <option value="">Select component</option>
+                                <option th:each="component : ${components}"
+                                        th:value="${component.inventoryNumber}"
+                                        th:text="${component.model + ' | ' + component.manufacturer + ' (' + component.inventoryNumber + ')'}">
+                                </option>
+                            </select>
+                        </div>
 
-                        <!-- COMPONENT -->
-                        <label for="componentId">Choose Component</label>
-                        <select id="componentId" name="componentId" required>
-                            <option value="">Select component</option>
-                            <option th:each="component : ${components}"
-                                    th:value="${component.inventoryNumber}"
-                                    th:text="${component.model + ' | ' + component.manufacturer + ' (' + component.inventoryNumber + ')'}">
-                            </option>
-                        </select>
+                        <div class="form-group">
+                            <label for="computerId">Choose Computer</label>
+                            <select id="computerId" name="computerId" required>
+                                <option value="">Select computer</option>
+                                <option th:each="computer : ${computers}"
+                                        th:value="${computer.inventoryNumber}"
+                                        th:text="${computer.name + ' (' + computer.inventoryNumber + ')'}">
+                                </option>
+                            </select>
+                        </div>
 
-                        <!-- COMPUTER -->
-                        <label for="computerId">Choose Computer</label>
-                        <select id="computerId" name="computerId" required>
-                            <option value="">Select computer</option>
-                            <option th:each="computer : ${computers}"
-                                    th:value="${computer.inventoryNumber}"
-                                    th:text="${computer.name + ' (' + computer.inventoryNumber + ')'}">
-                            </option>
-                        </select>
+                        <button type="submit" class="glass-btn">ASSIGN COMPONENT</button>
 
-                        <!-- BUTTON -->
-                        <button type="submit" class="glass-btn">
-                            ASSIGN COMPONENT
-                        </button>
+                        <p class="form-message error-message" th:if="${param.error}">
+                            Something went wrong while assigning the component.
+                        </p>
+
+                        <p class="form-message error-message" th:if="${param.alreadyAssigned}">
+                            This component is already assigned to another computer.
+                        </p>
 
                     </form>
-
                 </div>
             </section>
 
@@ -102,19 +104,20 @@
 
 </div>
 
-<!-- VALIDATION SCRIPT -->
 <script>
-    const form = document.querySelector('.assign-form');
+    const assignForm = document.querySelector('.assign-form');
 
-    form.addEventListener('submit', function (e) {
-        const component = document.getElementById('componentId').value;
-        const computer = document.getElementById('computerId').value;
+    if (assignForm) {
+        assignForm.addEventListener('submit', function (e) {
+            const component = document.getElementById('componentId').value;
+            const computer = document.getElementById('computerId').value;
 
-        if (!component || !computer) {
-            e.preventDefault();
-            alert('Please select both component and computer');
-        }
-    });
+            if (!component || !computer) {
+                e.preventDefault();
+                alert('Please select both component and computer');
+            }
+        });
+    }
 </script>
 
 </body>

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -43,8 +43,8 @@
                 <a href="/components">COMPONENTS</a>
                 <a href="/search">SEARCH</a>
                 <a href="/operations/assign">ASSIGN COMPONENT</a>
-                <a href="/settings">SETTINGS</a>
-                <form th:action="@{/logout}" method="post" style="margin: 0;">
+
+                <form th:action="@{/logout}" method="post">
                     <button type="submit" class="menu-logout-btn">LOG OUT</button>
                 </form>
             </nav>
@@ -80,7 +80,7 @@
                         </thead>
                         <tbody id="resultsBody">
                         <tr>
-                            <td colspan="6" style="text-align: center; padding: 30px;">
+                            <td colspan="6" class="table-empty">
                                 START TYPING TO SEARCH COMPONENTS
                             </td>
                         </tr>
@@ -108,10 +108,10 @@
     function renderResults(components) {
         resultsBody.innerHTML = '';
 
-        if (components.length === 0) {
+        if (!components || components.length === 0) {
             resultsBody.innerHTML = `
                 <tr>
-                    <td colspan="6" style="text-align: center; padding: 30px;">
+                    <td colspan="6" class="table-empty">
                         NO COMPONENTS FOUND
                     </td>
                 </tr>
@@ -120,8 +120,8 @@
         }
 
         components.forEach(component => {
-            const assignedTo = component.computerInventoryNumber && component.computerInventoryNumber.trim() !== ''
-                ? component.computerInventoryNumber
+            const assignedTo = component.computer && component.computer.inventoryNumber
+                ? component.computer.inventoryNumber
                 : '-';
 
             resultsBody.innerHTML += `
@@ -141,16 +141,45 @@
         });
     }
 
+    function loadSearchResults(query) {
+        fetch(`/components/search?query=${encodeURIComponent(query)}`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Server error');
+                }
+                return response.json();
+            })
+            .then(data => renderResults(data))
+            .catch(error => {
+                console.error('Search error:', error);
+                resultsBody.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="table-empty">
+                            SEARCH FAILED
+                        </td>
+                    </tr>
+                `;
+            });
+    }
+
     searchInput.addEventListener('input', function () {
         clearTimeout(searchTimeout);
 
-        const query = this.value;
+        const query = this.value.trim();
 
         searchTimeout = setTimeout(() => {
-            fetch(`/components/search?query=${encodeURIComponent(query)}`)
-                .then(response => response.json())
-                .then(data => renderResults(data))
-                .catch(error => console.error('Search error:', error));
+            if (query === '') {
+                resultsBody.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="table-empty">
+                            START TYPING TO SEARCH COMPONENTS
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            loadSearchResults(query);
         }, 300);
     });
 </script>

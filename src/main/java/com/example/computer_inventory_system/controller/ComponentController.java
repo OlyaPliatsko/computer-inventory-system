@@ -1,6 +1,7 @@
 package com.example.computer_inventory_system.controller;
 
 import com.example.computer_inventory_system.model.Component;
+import com.example.computer_inventory_system.model.ComponentStatus;
 import com.example.computer_inventory_system.model.Computer;
 import com.example.computer_inventory_system.model.User;
 import com.example.computer_inventory_system.service.ComponentService;
@@ -147,7 +148,12 @@ public class ComponentController {
     public String assignPage(Model model, Authentication authentication) {
         User currentUser = getCurrentUser(authentication);
 
-        model.addAttribute("components", componentService.getAllComponents(currentUser));
+        model.addAttribute("components", componentService.getAllComponents(currentUser)
+                .stream()
+                .filter(component -> component.getStatus() == ComponentStatus.FREE)
+                .filter(component -> component.getComputer() == null)
+                .toList());
+
         model.addAttribute("computers", computerService.getAllComputers(currentUser));
         return "assign-component";
     }
@@ -161,11 +167,17 @@ public class ComponentController {
         Component component = componentService.getById(componentId, currentUser);
         Computer computer = computerService.getById(computerId, currentUser);
 
-        if (component != null && computer != null) {
-            component.setComputer(computer);
-            componentService.update(component);
+        if (component == null || computer == null) {
+            return "redirect:/operations/assign?error=true";
         }
 
-        return "redirect:/components";
+        if (component.getStatus() != ComponentStatus.FREE || component.getComputer() != null) {
+            return "redirect:/operations/assign?alreadyAssigned=true";
+        }
+
+        component.setComputer(computer);
+        componentService.update(component);
+
+        return "redirect:/components?assignedSuccess=true";
     }
 }
